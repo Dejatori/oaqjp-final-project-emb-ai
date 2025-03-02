@@ -11,6 +11,16 @@ def emotion_detector(text_to_analyze):
     Returns:
         dict: A dictionary containing the emotion analysis results or error information
     """
+    if not text_to_analyze.strip():
+        return {
+            'anger': None,
+            'disgust': None,
+            'fear': None,
+            'joy': None,
+            'sadness': None,
+            'dominant_emotion': None
+        }
+
     # URL for Watson NLP Emotion Predict service
     url = 'https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict'
 
@@ -36,7 +46,7 @@ def emotion_detector(text_to_analyze):
             # Parse the JSON response
             response_data = json.loads(response.text)
 
-            # Extact emotion score
+            # Extract emotion scores
             emotions = response_data.get('emotionPredictions', [{}])[0].get('emotion', {})
 
             anger_score = emotions.get('anger', 0)
@@ -64,9 +74,17 @@ def emotion_detector(text_to_analyze):
                 'sadness': sadness_score,
                 'dominant_emotion': dominant_emotion
             }
-            
+        elif response.status_code == 400:
+            return {
+                'anger': None,
+                'disgust': None,
+                'fear': None,
+                'joy': None,
+                'sadness': None,
+                'dominant_emotion': None
+            }
         else:
-            # Return error in the required formato with zero scores
+            # Return error in the required format with zero scores
             return {
                 'anger': 0,
                 'disgust': 0,
@@ -76,7 +94,7 @@ def emotion_detector(text_to_analyze):
                 'dominant_emotion': None
             }
     except requests.exceptions.RequestException:
-        # Return error information in the required formato with zero scores
+        # Return error information in the required format with zero scores
         return {
             'anger': 0,
             'disgust': 0,
